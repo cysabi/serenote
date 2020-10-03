@@ -11,27 +11,14 @@ class HelpCommand(commands.DefaultHelpCommand):
 
     async def send_bot_help(self, mapping):
         """Send bot command page."""
-        list_commands = [
-            command for cog in [
-                await self.filter_commands(cog_commands)
-                for cog, cog_commands in mapping.items()
-                if cog is not None and await self.filter_commands(cog_commands)
-            ] for command in cog
-        ]
         embed = self.create_embed(
-            title="`$help`",
-            description="All the commands for Off the Dial Bot!",
+            title=f"`{self.clean_prefix}help`",
             fields=[{
-                "name": "Commands:",
+                "name": cog.qualified_name if cog else '\u200B',
                 "value": "\n".join([
                     self.short(command)
-                    for command in await self.filter_commands(mapping[None]) if command.help])
-            }, {
-                "name": "Misc Commands:",
-                "value": "\n".join([
-                    self.short(command)
-                    for command in list_commands])
-            }]
+                    for command in await self.filter_commands(cog_commands)
+                ])} for cog, cog_commands in mapping.items() if cog_commands][::-1]
         )
         await self.get_destination().send(embed=embed)
 
@@ -46,6 +33,7 @@ class HelpCommand(commands.DefaultHelpCommand):
                     self.short(command)
                     for command in cog.get_commands()])
             }]} if cog.get_commands() else {}))
+
         await self.get_destination().send(embed=embed)
 
     async def send_group_help(self, group):
@@ -65,13 +53,14 @@ class HelpCommand(commands.DefaultHelpCommand):
 
     async def send_command_help(self, command):
         """Send command page."""
+        sig = self.get_command_signature(command)
         embed = self.create_embed(
-            title=self.short(command, False),
+            title=f"`{sig[:-1] if sig.endswith(' ') else sig}`",
             description=command.help,
         )
         await self.get_destination().send(embed=embed)
 
-    async def command_not_found(self, string):
+    def command_not_found(self, string):
         """Returns message when command is not found."""
         return f"Command {self.short(string, False)} does not exist."
 
@@ -90,7 +79,7 @@ class HelpCommand(commands.DefaultHelpCommand):
 
     def create_embed(self, fields: list = (), **kwargs):
         """Create help embed."""
-        embed = discord.Embed(color=ui.Alert.Style.DANGER, **kwargs)
+        embed = discord.Embed(color=ui.Panel.EMBED_COLOR, **kwargs)
         for field in fields:
             embed.add_field(**field, inline=False)
         embed.set_footer(
