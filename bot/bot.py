@@ -17,6 +17,7 @@ class Bot(commands.Bot):
 
     async def on_ready(self):
         logging.info("Logged in as: %s", self.user.name)
+        
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
