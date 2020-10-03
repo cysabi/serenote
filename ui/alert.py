@@ -10,10 +10,10 @@ class Alert:
 
     class Style:
         """Alert styles and their colors."""
-        SUCCESS = 0x63ae33
-        DANGER = 0xf50206
-        WARNING = 0xffbe00
-        INFO = 0x0082ef
+        SUCCESS = 0x78b354
+        DANGER = 0xdd2e44
+        WARNING = 0xffcc4d
+        INFO = 0x3b88c3
 
     def __init__(self, ctx, style: Style, *, title: str, description: str = discord.Embed.Empty):
         """Create alert embed."""
