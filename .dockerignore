@@ -4,5 +4,6 @@
 !requirements.txt
 !bot
 !db
+!ui
 
 **/__pycache__
