@@ -17,7 +17,6 @@ class Bot(commands.Bot):
 
     async def on_ready(self):
         logging.info("Logged in as: %s", self.user.name)
-        await self.change_presence(activity=discord.Game("+task to create a new task!"))
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
