@@ -3,10 +3,11 @@ services:
 
     bot:
         build: .
-        depends_on:
-            - db
         env_file: .env
         restart: unless-stopped
 
     db:
-
+        image: mongo
+        restart: unless-stopped
+        volumes:
+          - ./serenote/db/data:/data/db
