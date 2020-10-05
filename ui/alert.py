@@ -40,7 +40,7 @@ class Alert:
         }
         title_key = {
             cls.Style.SUCCESS: lambda t: f' {emoji_key[style]} Success: **{t}**',
-            cls.Style.DANGER:  lambda t: f' {emoji_key[style]} Error: **{t}**',
+            cls.Style.DANGER:  lambda t: f' {emoji_key[style]} Danger: **{t}**',
             cls.Style.WARNING: lambda t: f' {emoji_key[style]} Warning: **{t}**',
             cls.Style.INFO:    lambda t: f' {emoji_key[style]} Info: **{t}**',
         }
