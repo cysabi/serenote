@@ -16,7 +16,7 @@ bot = Bot(command_prefix="+")
 # Load Cogs
 for cog in cogs.names:
     try:
-        bot.load_extension("bot.cogs." + cog)
+        bot.load_extension("serenote.cogs." + cog)
         logging.debug("Loaded cogs.%s", cog)
     except Exception as e:
         logging.warning("Failed to load cogs.%s", cog)
