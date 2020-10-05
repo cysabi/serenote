@@ -2,8 +2,7 @@
 
 !LICENSE
 !requirements.txt
-!bot
-!db
+!serenote
 !ui
 
 **/__pycache__
