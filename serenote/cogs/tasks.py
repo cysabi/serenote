@@ -1,8 +1,6 @@
-import asyncio
-import discord
 from discord.ext import commands
 
-from serenote import utils
+from serenote import utils, db
 
 
 class Tasks(commands.Cog):
@@ -23,9 +21,30 @@ class Tasks(commands.Cog):
         await ctx.message.delete()
         lines = task.split("\n")
         if len(lines) == 1:
-            await utils.Task(ctx, lines[0])
+            await utils.Task.create_task(ctx.channel, ctx.author.id, lines[0])
         else:
-            await utils.Task(ctx, lines[0], "\n".join(lines[1:]))
+            await utils.Task.create_task(ctx.channel, ctx.author.id, lines[0], "\n".join(lines[1:]))
+
+    @commands.Cog.listener(name='on_raw_reaction_add')
+    async def task_action_add(self, payload):
+        """Run task.action if the added reaction is on the task message."""
+        if task := self.get_task(self, payload):
+            await task.action(payload, True)
+
+    @commands.Cog.listener(name='on_raw_reaction_remove')
+    async def task_action_remove(self, payload):
+        """Run task.action if the removed reaction is on the task message."""
+        if task := self.get_task(self, payload):
+            await task.action(payload, False)
+    
+    async def get_task(self, payload):
+        """Return task object from reaction payload."""
+        if not (task_obj := db.get_task(payload.message_id)):
+            return
+
+        task_msg = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        return utils.Task(task_msg, task_obj)
+
 
 def setup(bot):
     bot.add_cog(Tasks(bot))

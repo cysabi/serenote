@@ -2,47 +2,68 @@
 
 import discord
 
+from serenote import db
+
 
 class Task:
-    """Custom task."""
+    """Task class to handle all the work of managing a task."""
 
-    EMBED_COLOR = 0x7289DA
-    def __init__(self, ctx):
-        """Initilize task and declare self variables."""
-        self.ctx = ctx
-        self.reply_task = None
-        self.actions = {
-            "complete": '✅',
-            "delete": '❌',
-        }
+    icons = lambda img: f"https://raw.githubusercontent.com/LeptoFlare/serenote/main/static/{img}.png"
+    actions = {
+        "complete": 762882665274933248,
+        "delete": 762882924592365609
+    }
 
-    async def __new__(cls, ctx, title: str, description: str = discord.Embed.Empty, channel=None):
-        """Use async to create embed and passive task on class creation."""
-        self = super().__new__(cls)
-        self.__init__(ctx)
+    @classmethod
+    async def create_task(cls, channel, author_id, title, description=discord.Embed.Empty):
+        """Create a new task and return associated Task object."""
+        # Create embed
+        embed = discord.Embed(
+            title=title,
+            description=description,
+            color=discord.Color.blurple())
+        cls.set_complete(embed, False)
+        # Send task embed
+        message = await channel.send(embed=embed)
+        # Add actions
+        for action in cls.actions.values():
+            react = await channel.guild.fetch_emoji(action)
+            await message.add_reaction(react)
 
-        # Create and send task embed
-        embed = discord.Embed(title=title, description=description, color=0x7289DA)
-        embed.set_author(name="To-do", icon_url="https://raw.githubusercontent.com/LeptoFlare/serenote/main/static/unchecked.png")
-        dest = channel if channel else ctx.channel
-        self.message = await dest.send(embed=embed)
+        # Insert task into database
+        db_task = db.Task(message_id=message.id, author_id=author_id)
+        db_task.save()
 
-        # Wait for task action
-        for action in self.actions.values():
-            await self.message.add_reaction(action)
-        reaction, _ = await self.ctx.bot.wait_for('reaction_add', check=self.event_check(valids=set(self.actions.values())))
-        await self.message.clear_reactions()
+        # Build task object
+        return Task(message, db_task)
+    
+    def __init__(self, message, db):
+        self.message = message
+        self.db = db
+        self.embed = self.message.embeds[0]
 
-        # Deal with reaction
-        if reaction.emoji == self.actions['complete']:
-            embed.set_author(name="Complete!", icon_url="https://raw.githubusercontent.com/LeptoFlare/serenote/main/static/checked.png")
-            await self.message.edit(embed=embed)
-        elif reaction.emoji == self.actions['delete']:
-            await self.message.delete()
+    async def action(self, payload, reaction_add: bool):
+        """Validate payload and run a task action."""
+        if payload.user_id != self.db.author_id:
+            return
+        await {
+            'complete': self.complete,
+            'delete': self.delete
+        }(reaction_add)
 
-        return self
+    async def complete(self, checked: bool):
+        """Action task complete as checked value."""
+        await self.message.edit(embed=self.set_status(self.embed, checked))
 
-    def event_check(self, valids: set):
-        return lambda r, u: \
-            (r.message.id, u.id) == (self.message.id, self.ctx.author.id) and \
-            (r.emoji in valids)
+    async def delete(self, _=None):
+        """Action task delete."""
+        await self.message.delete()
+        self.db.delete()
+
+    @classmethod
+    def set_complete(cls, embed, checked: bool):
+        embed.set_author(**{
+            False: {"name": "Incomplete Task", "icon_url": cls.icons("unchecked")},
+            True: {"name": "Completed Task", "icon_url": cls.icons("checked")},
+        }[checked])
+        return embed
