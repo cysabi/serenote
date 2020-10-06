@@ -37,6 +37,12 @@ class Tasks(commands.Cog):
         if task := self.get_task(self, payload):
             await task.action(payload, False)
     
+    @commands.Cog.listener(name='on_message_delete')
+    async def task_delete(self, message):
+        """Run task delete if the user deletes the deleted."""
+        if task_obj := db.get_task(message.id):
+            task_obj.delete()
+    
     async def get_task(self, payload):
         """Return task object from reaction payload."""
         if not (task_obj := db.get_task(payload.message_id)):
