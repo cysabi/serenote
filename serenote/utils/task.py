@@ -11,7 +11,6 @@ class Task:
     icons = lambda img: f"https://raw.githubusercontent.com/LeptoFlare/serenote/main/static/{img}.png"
     actions = {
         "complete": 762882665274933248,
-        "delete": 762882924592365609
     }
 
     @classmethod
@@ -48,17 +47,11 @@ class Task:
             return
         await {
             'complete': self.complete,
-            'delete': self.delete
         }(reaction_add)
 
     async def complete(self, checked: bool):
         """Action task complete as checked value."""
         await self.message.edit(embed=self.set_status(self.embed, checked))
-
-    async def delete(self, _=None):
-        """Action task delete."""
-        await self.message.delete()
-        self.db.delete()
 
     @classmethod
     def set_complete(cls, embed, checked: bool):
