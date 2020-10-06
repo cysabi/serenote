@@ -21,9 +21,9 @@ class Tasks(commands.Cog):
         await ctx.message.delete()
         lines = task.split("\n")
         if len(lines) == 1:
-            await utils.Task.create_task(ctx.channel, ctx.author.id, lines[0])
+            await utils.Task.create_task(ctx, lines[0])
         else:
-            await utils.Task.create_task(ctx.channel, ctx.author.id, lines[0], "\n".join(lines[1:]))
+            await utils.Task.create_task(ctx, lines[0], "\n".join(lines[1:]))
 
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):

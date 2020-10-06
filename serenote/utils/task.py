@@ -14,7 +14,7 @@ class Task:
     }
 
     @classmethod
-    async def create_task(cls, channel, author_id, title, description=discord.Embed.Empty):
+    async def create_task(cls, ctx, title, description=discord.Embed.Empty):
         """Create a new task and return associated Task object."""
         # Create embed
         embed = discord.Embed(
@@ -23,14 +23,14 @@ class Task:
             color=discord.Color.blurple())
         cls.set_complete(embed, False)
         # Send task embed
-        message = await channel.send(embed=embed)
+        message = await ctx.send(embed=embed)
         # Add actions
         for action in cls.actions.values():
-            react = await channel.guild.fetch_emoji(action)
+            react = await ctx.bot.get_emoji(action)
             await message.add_reaction(react)
 
         # Insert task into database
-        db_task = db.Task(message_id=message.id, author_id=author_id)
+        db_task = db.Task(message_id=ctx.message.id, author_id=ctx.author.id)
         db_task.save()
 
         # Build task object
