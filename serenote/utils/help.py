@@ -3,11 +3,11 @@
 import discord
 from discord.ext import commands
 
-import ui
-
 
 class HelpCommand(commands.DefaultHelpCommand):
     """Set up help command for the bot."""
+
+    EMBED_COLOR = 0x7289DA
 
     async def send_bot_help(self, mapping):
         """Send bot command page."""
@@ -74,12 +74,11 @@ class HelpCommand(commands.DefaultHelpCommand):
     async def send_error_message(self, error):
         """Send error message, override to support sending embeds."""
         await self.get_destination().send(
-            embed=ui.Alert.create_embed(ui.Alert.Style.DANGER,
-                title="Command/Subcommand not found.", description=error))
+            embed=discord.Embed(title="Command/Subcommand not found.", description=error, color=self.EMBED_COLOR))
 
     def create_embed(self, fields: list = (), **kwargs):
         """Create help embed."""
-        embed = discord.Embed(color=ui.Panel.EMBED_COLOR, **kwargs)
+        embed = discord.Embed(color=self.EMBED_COLOR, **kwargs)
         for field in fields:
             embed.add_field(**field, inline=False)
         embed.set_footer(
