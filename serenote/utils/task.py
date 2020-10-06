@@ -47,11 +47,11 @@ class Task:
             return
         await {
             'complete': self.complete,
-        }(reaction_add)
+        }[payload.emoji.name](reaction_add)
 
     async def complete(self, checked: bool):
         """Action task complete as checked value."""
-        await self.message.edit(embed=self.set_status(self.embed, checked))
+        await self.message.edit(embed=self.set_complete(self.embed, checked))
 
     @classmethod
     def set_complete(cls, embed, checked: bool):

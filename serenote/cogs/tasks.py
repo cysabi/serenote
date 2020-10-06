@@ -28,13 +28,13 @@ class Tasks(commands.Cog):
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
         """Run task.action if the added reaction is on the task message."""
-        if task := self.get_task(self, payload):
+        if task := await self.get_task(payload):
             await task.action(payload, True)
 
     @commands.Cog.listener(name='on_raw_reaction_remove')
     async def task_action_remove(self, payload):
         """Run task.action if the removed reaction is on the task message."""
-        if task := self.get_task(self, payload):
+        if task := await self.get_task(payload):
             await task.action(payload, False)
     
     @commands.Cog.listener(name='on_message_delete')
@@ -49,6 +49,10 @@ class Tasks(commands.Cog):
             return
 
         task_msg = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        if not task_msg.embeds:
+            await task_msg.delete()
+            await self.task_delete(task_msg)
+            return
         return utils.Task(task_msg, task_obj)
 
 
