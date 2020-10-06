@@ -23,7 +23,7 @@ class Task:
 
         # Create and send task embed
         embed = discord.Embed(title=title, description=description, color=0x7289DA)
-        embed.set_author(name="To-do", icon_url="https://media.discordapp.net/attachments/757710892317278279/762880963218243584/Empty_Group.png")
+        embed.set_author(name="To-do", icon_url="https://raw.githubusercontent.com/LeptoFlare/serenote/main/static/unchecked.png")
         dest = channel if channel else ctx.channel
         self.message = await dest.send(embed=embed)
 
@@ -35,7 +35,7 @@ class Task:
 
         # Deal with reaction
         if reaction.emoji == self.actions['complete']:
-            embed.set_author(name="Complete!", icon_url="https://media.discordapp.net/attachments/757710892317278279/762880965445025792/Check_Empty_Group.png")
+            embed.set_author(name="Complete!", icon_url="https://raw.githubusercontent.com/LeptoFlare/serenote/main/static/checked.png")
             await self.message.edit(embed=embed)
         elif reaction.emoji == self.actions['delete']:
             await self.message.delete()
