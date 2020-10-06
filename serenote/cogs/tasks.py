@@ -13,7 +13,13 @@ class Tasks(commands.Cog):
 
     @commands.command(invoke_without_command=True)
     async def task(self, ctx, *, task):
-        """Create a new task."""
+        """Create a new task.
+
+        ```
+        +task <name>
+        <details>
+        ```
+        """
         await ctx.message.delete()
         lines = task.split("\n")
         if len(lines) == 1:
