@@ -26,11 +26,11 @@ class Task:
         message = await ctx.send(embed=embed)
         # Add actions
         for action in cls.actions.values():
-            react = await ctx.bot.get_emoji(action)
+            react = ctx.bot.get_emoji(action)
             await message.add_reaction(react)
 
         # Insert task into database
-        db_task = db.Task(message_id=ctx.message.id, author_id=ctx.author.id)
+        db_task = db.Task(message_id=message.id, author_id=ctx.author.id)
         db_task.save()
 
         # Build task object
