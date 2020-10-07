@@ -7,8 +7,6 @@ from discord.ext import commands
 class HelpCommand(commands.DefaultHelpCommand):
     """Set up help command for the bot."""
 
-    EMBED_COLOR = 0x7289DA
-
     async def send_bot_help(self, mapping):
         """Send bot command page."""
         embed = self.create_embed(
@@ -78,7 +76,7 @@ class HelpCommand(commands.DefaultHelpCommand):
 
     def create_embed(self, fields: list = (), **kwargs):
         """Create help embed."""
-        embed = discord.Embed(color=self.EMBED_COLOR, **kwargs)
+        embed = discord.Embed(color=discord.Color.blurple(), **kwargs)
         for field in fields:
             embed.add_field(**field, inline=False)
         embed.set_footer(
