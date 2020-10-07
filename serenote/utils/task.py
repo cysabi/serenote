@@ -35,7 +35,7 @@ class Task:
         db_task.save()
 
         # Build task object
-        return Task(message, db_task)
+        return Task(message)
     
     def __init__(self, message):
         self.message = message
