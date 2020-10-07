@@ -1,3 +1,6 @@
+import re
+
+import discord
 from discord.ext import commands
 
 from serenote import utils, db
@@ -19,11 +22,15 @@ class Tasks(commands.Cog):
         ```
         """
         await ctx.message.delete()
+        # Parse task
+        assignees, task = self.get_assignees(task)
         lines = task.split("\n")
+        # Make args
+        args = [ctx, lines[0]]
         if len(lines) == 1:
-            await utils.Task.create_task(ctx, lines[0])
-        else:
-            await utils.Task.create_task(ctx, lines[0], "\n".join(lines[1:]))
+            args.append("\n".join(lines[1:]))
+        # Build task
+        await utils.Task.create_task(*args, assignees=assignees)
 
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
@@ -62,6 +69,23 @@ class Tasks(commands.Cog):
             await self.task_delete(task_msg)
             return
         return utils.Task(task_msg)
+
+    @staticmethod
+    def get_assignees(content):
+        """Get all assignee ids."""
+        assignee_ids = []
+        assigned_role_ids = []
+        words = content.split()
+        for word in content.split():
+            if re.match(r'<@&?\d{1,}>', word):
+                assigned_role_ids.append(int(re.sub(r'\D', '', word)))
+                words.pop(0)
+            elif re.match(r'<@&?\d{1,}>', word):
+                assignee_ids.append(int(re.sub(r'\D', '', word)))
+                words.pop(0)
+            else:
+                break
+        return (assignee_ids, assigned_role_ids), " ".join(words)
 
 
 def setup(bot):
