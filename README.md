@@ -1,5 +1,5 @@
 # `serenote`
-> An integrated quick-capture task management discord bot
+> An integrated, quick-capture, task management discord bot!
 
 ![License][license-shield]
 ![Stars][stars-shield]
