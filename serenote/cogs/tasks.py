@@ -21,15 +21,17 @@ class Tasks(commands.Cog):
         [<details>]
         ```
         """
-        await ctx.message.delete()
         # Parse task
         assignees, task = self.get_assignees(task)
         lines = task.split("\n")
+        if lines[0] == '':
+            raise commands.MissingRequiredArgument(self.task)
         # Make args
         args = [ctx, lines[0]]
         if len(lines) == 1:
             args.append("\n".join(lines[1:]))
         # Build task
+        await ctx.message.delete()
         await utils.Task.create_task(*args, assignees=assignees)
 
     @commands.Cog.listener(name='on_raw_reaction_add')
@@ -77,11 +79,11 @@ class Tasks(commands.Cog):
         assigned_role_ids = []
         words = content.split()
         for word in content.split():
-            if re.match(r'<@&?\d{1,}>', word):
-                assigned_role_ids.append(int(re.sub(r'\D', '', word)))
-                words.pop(0)
-            elif re.match(r'<@&?\d{1,}>', word):
+            if re.match(r'<@!?\d{1,}>', word):
                 assignee_ids.append(int(re.sub(r'\D', '', word)))
+                words.pop(0)
+            elif re.match(r'<@&\d{1,}>', word):
+                assigned_role_ids.append(int(re.sub(r'\D', '', word)))
                 words.pop(0)
             else:
                 break
