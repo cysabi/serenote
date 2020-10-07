@@ -37,9 +37,9 @@ class Task:
         # Build task object
         return Task(message, db_task)
     
-    def __init__(self, message, db):
+    def __init__(self, message):
         self.message = message
-        self.db = db
+        self.db = db.get_task(message.id)
         self.embed = self.message.embeds[0]
 
     async def action(self, payload, reaction_add: bool):

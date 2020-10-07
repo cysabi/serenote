@@ -45,7 +45,7 @@ class Tasks(commands.Cog):
     
     async def get_task(self, payload):
         """Return task object from reaction payload."""
-        if not (task_obj := db.get_task(payload.message_id)):
+        if not db.get_task(payload.message_id):
             return
 
         task_msg = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
@@ -53,7 +53,7 @@ class Tasks(commands.Cog):
             await task_msg.delete()
             await self.task_delete(task_msg)
             return
-        return utils.Task(task_msg, task_obj)
+        return utils.Task(task_msg)
 
 
 def setup(bot):
