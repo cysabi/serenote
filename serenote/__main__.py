@@ -7,11 +7,15 @@ This includes importing the bot, loading the cogs, setting the prefix, etc.
 import os
 import logging
 
-from . import cogs, db, utils
+from discord import Intents
+
+from . import cogs
 from .bot import Bot
 
 # Create Bot
-bot = Bot(command_prefix="+")
+intents = Intents.default()
+intents.members = True
+bot = Bot(command_prefix='+', intents=intents)
 
 # Load Cogs
 for cog in cogs.names:
