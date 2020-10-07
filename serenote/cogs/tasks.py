@@ -1,3 +1,6 @@
+import re
+
+import discord
 from discord.ext import commands
 
 from serenote import utils, db
@@ -18,24 +21,36 @@ class Tasks(commands.Cog):
         [<details>]
         ```
         """
-        await ctx.message.delete()
+        # Parse task
+        assignees, task = self.get_assignees(task)
         lines = task.split("\n")
+        if lines[0] == '':
+            raise commands.MissingRequiredArgument(self.task)
+        # Make args
+        args = [ctx, lines[0]]
         if len(lines) == 1:
-            await utils.Task.create_task(ctx, lines[0])
-        else:
-            await utils.Task.create_task(ctx, lines[0], "\n".join(lines[1:]))
+            args.append("\n".join(lines[1:]))
+        # Build task
+        await ctx.message.delete()
+        await utils.Task.create_task(*args, assignees=assignees)
 
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
         """Run task.action if the added reaction is on the task message."""
         if task := await self.get_task(payload):
-            await task.action(payload, True)
+            try:
+                await task.action(payload, True)
+            except discord.NotFound:
+                pass
 
     @commands.Cog.listener(name='on_raw_reaction_remove')
     async def task_action_remove(self, payload):
         """Run task.action if the removed reaction is on the task message."""
         if task := await self.get_task(payload):
-            await task.action(payload, False)
+            try:
+                await task.action(payload, False)
+            except discord.NotFound:
+                pass
     
     @commands.Cog.listener(name='on_message_delete')
     async def task_delete(self, message):
@@ -47,13 +62,32 @@ class Tasks(commands.Cog):
         """Return task object from reaction payload."""
         if not db.get_task(payload.message_id):
             return
-
-        task_msg = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        try:
+            task_msg = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        except discord.NotFound:
+            return
         if not task_msg.embeds:
             await task_msg.delete()
             await self.task_delete(task_msg)
             return
         return utils.Task(task_msg)
+
+    @staticmethod
+    def get_assignees(content):
+        """Get all assignee ids."""
+        assignee_ids = []
+        assigned_role_ids = []
+        words = content.split()
+        for word in content.split():
+            if re.match(r'<@!?\d{1,}>', word):
+                assignee_ids.append(int(re.sub(r'\D', '', word)))
+                words.pop(0)
+            elif re.match(r'<@&\d{1,}>', word):
+                assigned_role_ids.append(int(re.sub(r'\D', '', word)))
+                words.pop(0)
+            else:
+                break
+        return (assignee_ids, assigned_role_ids), " ".join(words)
 
 
 def setup(bot):
