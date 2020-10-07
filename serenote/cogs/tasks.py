@@ -14,8 +14,8 @@ class Tasks(commands.Cog):
         """Create a new task.
 
         ```
-        +task <name>
-        <details>
+        +task [<assignees>] <name>
+        [<details>]
         ```
         """
         await ctx.message.delete()
