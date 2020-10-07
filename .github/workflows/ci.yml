@@ -15,4 +15,4 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         envs: GITHUB_SHA
-        script: cd ~/LeptoBot && git fetch && git checkout $GITHUB_SHA && docker-compose up -d --build
+        script: cd ~/serenote && git fetch && git checkout $GITHUB_SHA && docker-compose up -d --build
