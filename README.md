@@ -12,7 +12,7 @@ The benefits to using this bot for task management include convenience and easy 
 - Events
 
 ## Usage <!-- Using the product -->
-The bot is currently in development. However, you can still [**invite the bot**](https://discord.com/api/oauth2/authorize?client_id=761796288575438860&permissions=0&scope=bot).
+The bot is currently in development. However, you can still [**invite the bot**](https://discord.com/api/oauth2/authorize?client_id=761796288575438860&permissions=387136&scope=bot).
 
 The prefix for the bot is `+`, Create your first task by doing `+task`!
 
