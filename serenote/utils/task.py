@@ -99,8 +99,8 @@ class Task:
     def get_type(cls, complete):
         """Get task panel type, based on complete status."""
         return {
-            False: {"type": "Incomplete Task", "type_icon": utils.Panel.icons("unchecked")},
-            True: {"type": "Completed Task", "type_icon": utils.Panel.icons("checked")},
+            False: {"type": "Task", "type_icon": utils.Panel.icons("unchecked")},
+            True: {"type": "Task", "type_icon": utils.Panel.icons("checked")},
         }[complete]
 
     @staticmethod
@@ -112,5 +112,6 @@ class Task:
         for user in ids[0]:
             assignees.append(ctx.bot.get_user(user))
         if assignees:
-            assignees.append(ctx.author)
+            if not ctx.author in assignees:
+                assignees.append(ctx.author)
         return assignees

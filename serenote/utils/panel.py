@@ -11,7 +11,8 @@ class Panel(discord.Embed):
             title=embed.title,
             description=embed.description
         )
-        panel.set_footer(text=embed._footer['text'])
+        if footer := getattr(embed, '_footer', None):
+            panel.set_footer(text=footer['text'])
         return panel
 
     def __init__(self, type, type_icon=None, meta=None, *, title=None, description=None):
