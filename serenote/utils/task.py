@@ -14,7 +14,7 @@ class Task:
     }
 
     @classmethod
-    async def create_task(cls, ctx, title, description=discord.Embed.Empty, **kwargs):
+    async def create(cls, ctx, title, description=discord.Embed.Empty, **kwargs):
         """Create a new task and return associated Task object."""
         # Create task panel
         panel = cls.create_panel(ctx, title, description, **kwargs)

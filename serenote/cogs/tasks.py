@@ -32,7 +32,7 @@ class Tasks(commands.Cog):
             args.append("\n".join(lines[1:]))
         # Build task
         await ctx.message.delete()
-        await utils.Task.create_task(*args, assignees=assignees)
+        await utils.Task.create(*args, assignees=assignees)
 
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
