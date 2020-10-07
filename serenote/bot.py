@@ -21,6 +21,7 @@ class Bot(commands.Bot):
         if isinstance(exception, commands.MissingRequiredArgument):
             await context.send(embed=utils.Panel(
                 type="Error",
+                type_icon=utils.Panel.icons("error"),
                 title="Missing Required Argument",
                 description=exception.args[0],
             ))
