@@ -46,8 +46,7 @@ class Task:
         # Add panel meta
         panel_meta = {}
         # display assignees meta
-        if kwargs['assignees'][0] + kwargs['assignees'][1]:
-            panel_meta["Assignees"] = cls.get_assignees(ctx, kwargs['assignees'])
+        panel_meta["Assignees"] = cls.get_assignees(ctx, kwargs['assignees'])
 
         # Return panel object
         return utils.Panel(
@@ -108,7 +107,11 @@ class Task:
         """Return a list of all role and user objects that are assignees."""
         assignees = [ctx.author]
         for role in ids[1]:
-            assignees.append(ctx.guild.get_role(role))
+            assignee = ctx.guild.get_role(role)
+            if not assignee in assignees:
+                assignees.append(assignee)
         for user in ids[0]:
-            assignees.append(ctx.bot.get_user(user))
+            assignee = ctx.bot.get_user(user)
+            if not assignee in assignees:
+                assignees.append(assignee)
         return assignees
