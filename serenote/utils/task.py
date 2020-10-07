@@ -8,7 +8,6 @@ from serenote import utils, db
 class Task:
     """Task class to handle all the work of managing a task."""
 
-    icons = lambda img: f"https://raw.githubusercontent.com/LeptoFlare/serenote/main/static/{img}.png"
     actions = {
         "complete": 762882665274933248,
         "delete": 763192427732926465,
@@ -100,8 +99,8 @@ class Task:
     def get_type(cls, complete):
         """Get task panel type, based on complete status."""
         return {
-            False: {"type": "Incomplete Task", "type_icon": cls.icons("unchecked")},
-            True: {"type": "Completed Task", "type_icon": cls.icons("checked")},
+            False: {"type": "Incomplete Task", "type_icon": utils.Panel.icons("unchecked")},
+            True: {"type": "Completed Task", "type_icon": utils.Panel.icons("checked")},
         }[complete]
 
     @staticmethod

@@ -28,7 +28,7 @@ class Panel(discord.Embed):
             f"{key}: {self.parse_value(value)}"
             for key, value in meta.items()
         ]))
-
+    
     @classmethod
     def parse_value(cls, value):
         if isinstance(value, (discord.User, discord.Member)):
@@ -36,3 +36,7 @@ class Panel(discord.Embed):
         if isinstance(value, list):
             return ', '.join([cls.parse_value(v) for v in value])
         return value
+
+    @staticmethod
+    def icons(img):
+        return f"https://raw.githubusercontent.com/LeptoFlare/serenote/main/static/{img}.png"
