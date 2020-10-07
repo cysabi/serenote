@@ -15,7 +15,7 @@ class Task:
     }
 
     @classmethod
-    async def create_task(cls, ctx, assignees, title, description=discord.Embed.Empty):
+    async def create_task(cls, ctx, title, description=discord.Embed.Empty, **kwargs):
         """Create a new task and return associated Task object."""
         # Create embed
         embed = discord.Embed(
@@ -34,8 +34,8 @@ class Task:
         db_task = db.Task(
             message_id=message.id,
             author_id=ctx.author.id,
-            assignee_ids=assignees[0],
-            assigned_role_ids=assignees[1]
+            assignee_ids=kwargs['assignees'][0],
+            assigned_role_ids=kwargs['assignees'][1]
         )
         db_task.save()
 

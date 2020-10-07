@@ -26,15 +26,11 @@ class Tasks(commands.Cog):
         assignees, task = self.get_assignees(task)
         lines = task.split("\n")
         # Make args
-        args = [
-            ctx,
-            assignees,
-            lines[0],
-        ]
+        args = [ctx, lines[0]]
         if len(lines) == 1:
             args.append("\n".join(lines[1:]))
         # Build task
-        await utils.Task.create_task(*args)
+        await utils.Task.create_task(*args, assignees=assignees)
 
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
