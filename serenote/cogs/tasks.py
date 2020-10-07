@@ -29,13 +29,19 @@ class Tasks(commands.Cog):
     async def task_action_add(self, payload):
         """Run task.action if the added reaction is on the task message."""
         if task := await self.get_task(payload):
-            await task.action(payload, True)
+            try:
+                await task.action(payload, True)
+            except discord.NotFound:
+                pass
 
     @commands.Cog.listener(name='on_raw_reaction_remove')
     async def task_action_remove(self, payload):
         """Run task.action if the removed reaction is on the task message."""
         if task := await self.get_task(payload):
-            await task.action(payload, False)
+            try:
+                await task.action(payload, False)
+            except discord.NotFound:
+                pass
     
     @commands.Cog.listener(name='on_message_delete')
     async def task_delete(self, message):
@@ -47,8 +53,10 @@ class Tasks(commands.Cog):
         """Return task object from reaction payload."""
         if not db.get_task(payload.message_id):
             return
-
-        task_msg = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        try:
+            task_msg = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        except discord.NotFound:
+            return
         if not task_msg.embeds:
             await task_msg.delete()
             await self.task_delete(task_msg)
