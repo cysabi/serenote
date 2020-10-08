@@ -22,13 +22,13 @@ class Tasks(commands.Cog):
         ```
         """
         # Parse task
-        assignees, task = self.get_assignees(task)
         lines = task.split("\n")
+        assignees, lines[0] = self.get_assignees(lines[0])
         if lines[0] == '':
             raise commands.MissingRequiredArgument(self.task)
         # Make args
         args = [ctx, lines[0]]
-        if len(lines) == 1:
+        if len(lines) > 1:
             args.append("\n".join(lines[1:]))
         # Build task
         await ctx.message.delete()
