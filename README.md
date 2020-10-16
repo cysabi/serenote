@@ -5,14 +5,18 @@
 ![Stars][stars-shield]
 # ![Banner](banner.png)
 
-The benefits to using this bot for task management include convenience and easy integration. It's very helpful to use this bot as a way to manage your staff, moderators, and other things as you run your server. Why use a seperate application with discord when you can use discord directly?
+Serenote is a project management discord bot, focused on convenience and ease of use. You can use this bot as a way to manage staff and moderators for your community server, or any other aspects to running your server. Why use a seperate application to manage discord, when you can use discord directly?
+
+You can use the bot to keep track of...
 - Tasks
 - Notes
 - Reminders
 - Events
+- Polls
 
 ## Usage <!-- Using the product -->
-The bot is currently in development. However, you can still [**invite the bot**](https://discord.com/api/oauth2/authorize?client_id=761796288575438860&permissions=387136&scope=bot).
+You can [**invite the bot here**](https://discord.com/api/oauth2/authorize?client_id=761796288575438860&permissions=387136&scope=bot).
+The bot is still in development, expect some instability. Please remember to report any bugs, suggestions, or issues.
 
 The prefix for the bot is `+`, Create your first task by doing `+task`!
 
