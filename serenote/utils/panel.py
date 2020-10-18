@@ -16,7 +16,7 @@ class Panel(discord.Embed):
         return panel
 
     def __init__(self, type, type_icon=None, meta=None, *, title=None, description=None):
-        super().__init__(color=discord.Color.blurple(), title=title, description=description)
+        super().__init__(color=0x2F3136, title=title, description=description)
         self.set_type(type, type_icon)
         if meta:
             self.set_meta(meta)
