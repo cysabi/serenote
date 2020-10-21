@@ -76,7 +76,7 @@ class Tasks(commands.Cog):
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
         """Run task.action if the added reaction is on the task message."""
-        if task := await self.get_task(payload):
+        if task := await utils.Task.get(self.bot, payload.message_id):
             try:
                 await task.action(payload, True)
             except discord.NotFound:
@@ -85,7 +85,7 @@ class Tasks(commands.Cog):
     @commands.Cog.listener(name='on_raw_reaction_remove')
     async def task_action_remove(self, payload):
         """Run task.action if the removed reaction is on the task message."""
-        if task := await self.get_task(payload):
+        if task := await utils.Task.get(self.bot, payload.message_id):
             try:
                 await task.action(payload, False)
             except discord.NotFound:
