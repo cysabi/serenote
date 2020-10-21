@@ -24,6 +24,9 @@ class Panel(discord.Embed):
     def set_type(self, type, type_icon=None):
         self.set_author(name=type, **({"icon_url": type_icon} if type_icon else {}))
 
+    def get_type(self):
+        return {"type": self._author['name'], "type_icon": self._author.get('icon_url')}
+
     def set_meta(self, meta):
         self.set_footer(text="\n".join([
             f"{key}: {self.parse_value(value)}"

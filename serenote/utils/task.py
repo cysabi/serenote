@@ -81,6 +81,13 @@ class Task:
         self.assignees = [self.guild.get_member(assignee_id) for assignee_id in self.db.assignee_ids]
         self.assigned_roles = [self.guild.get_role(role_id) for role_id in self.db.assigned_role_ids]
 
+    def checked(self):
+        """Return whether the task is checked."""
+        return {
+            utils.Panel.icons("unchecked"): False,
+            utils.Panel.icons("checked"): True
+        }[self.panel.get_type()["type_icon"]]
+
     async def action(self, user_id, act, reaction_add: bool):
         """Validate payload and run a task action."""
         if self.validate_user(user_id):

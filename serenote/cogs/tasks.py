@@ -63,14 +63,20 @@ class Tasks(commands.Cog):
         """Get a list of all of your tasks.
         Please note that this only retrieves the tasks that are directly assigned to you, not by role.
         """
+        icons = {
+            True: 768579164092628994,
+            False: 768579164445605928,
+        }
         tasks = await utils.Task.query(ctx, assignee_ids=ctx.author.id)
-        task_list = "\n".join([
-            f"`-` [{task.panel.title}]({task.message.jump_url})" for task in tasks
-        ])
-        await ctx.send(embed=discord.Embed(
+        list_tasks = lambda c: "\n".join(
+            [f"{ctx.bot.get_emoji(icons[c])} [{task.panel.title}]({task.message.jump_url})" for task in tasks if task.checked() == c]
+        )
+        embed = discord.Embed(
             color=discord.Color.blurple(),
             title=f"Tasks assigned to **{ctx.author.name}**",
-            description=task_list))
+            description=list_tasks(False))
+        embed.add_field(name="Completed Tasks", value=list_tasks(True))
+        await ctx.send(embed=embed)
 
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
