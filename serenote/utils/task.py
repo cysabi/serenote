@@ -19,21 +19,19 @@ class Task:
         # Create task panel
         panel = cls.create_panel(ctx, title, description, **kwargs)
         message = await ctx.send(embed=panel)  # Send panel embed
-
         # Add actions
         for action in cls.actions.values():
             react = ctx.bot.get_emoji(action)
             await message.add_reaction(react)
-
         # Insert task into database
         db_task = db.Task(
             message_id=message.id,
+            channel_id=message.channel.id,
             author_id=ctx.author.id,
             assignee_ids=kwargs['assignees'][0],
             assigned_role_ids=kwargs['assignees'][1]
         )
         db_task.save()
-
         # Build task object
         return Task(message)
     
@@ -42,20 +40,34 @@ class Task:
         """Create task panel."""
         # Get task panel type
         task_panel_type = cls.get_type(False)
-
         # Add panel meta
         panel_meta = {}
-        # display assignees meta
-        panel_meta["Assignees"] = cls.get_assignees(ctx, kwargs['assignees'])
-
+        panel_meta["Assignees"] = cls.get_assignees(ctx, kwargs['assignees'])  # display assignees meta
         # Return panel object
         return utils.Panel(
             **task_panel_type,
             meta=panel_meta,
             title=title,
-            description=description
-        )
-    
+            description=description)
+
+    @staticmethod
+    async def get(bot, message_id):
+        """Return task object from reaction payload."""
+        # Ensure the message even is a task
+        if not (db_task := db.get_task(message_id)):
+            return
+        try:
+            # Create task object
+            message = await bot.get_channel(db_task.channel_id).fetch_message(db_task.message_id)
+            task = Task(message)
+        except discord.NotFound:
+            return
+        if not task.message.embeds:
+            await task.delete()
+            return
+
+        return Task(message)
+
     def __init__(self, message):
         self.message = message
         self.db = db.get_task(message.id)
@@ -67,13 +79,13 @@ class Task:
         self.assignees = [self.guild.get_member(assignee_id) for assignee_id in self.db.assignee_ids]
         self.assigned_roles = [self.guild.get_role(role_id) for role_id in self.db.assigned_role_ids]
 
-    async def action(self, payload, reaction_add: bool):
+    async def action(self, user_id, act, reaction_add: bool):
         """Validate payload and run a task action."""
-        if self.validate_user(payload.user_id):
+        if self.validate_user(user_id):
             await {
                 'complete': self.complete,
                 'delete': self.delete
-            }[payload.emoji.name](reaction_add)
+            }[act](reaction_add)
 
     def validate_user(self, user_id):
         """Return whether the user_id has permission to interact with the task."""
@@ -89,13 +101,25 @@ class Task:
         self.panel.set_type(**self.get_type(checked))
         await self.message.edit(embed=self.panel)
 
-    async def delete(self, _=None):
+    async def delete(self, checked=True):
         """Action task delete."""
-        await self.message.delete()
-        self.db.delete()
+        if checked:
+            await self.message.delete()
+            self.db.delete()
 
-    @classmethod
-    def get_type(cls, complete):
+    @staticmethod
+    async def query(ctx, **kwargs):
+        """Return a list of tasks based on query."""
+        task_objects = db.Task.objects(**kwargs)
+        tasks = []
+
+        for task_obj in task_objects:
+            task = await Task.get(ctx.bot, task_obj.message_id)
+            tasks.append(task)
+        return tasks
+
+    @staticmethod
+    def get_type(complete):
         """Get task panel type, based on complete status."""
         return {
             False: {"type": "Task", "type_icon": utils.Panel.icons("unchecked")},
@@ -105,7 +129,7 @@ class Task:
     @staticmethod
     def get_assignees(ctx, ids) -> list:
         """Return a list of all role and user objects that are assignees."""
-        assignees = [ctx.author]
+        assignees = []
         for role in ids[1]:
             assignee = ctx.guild.get_role(role)
             if not assignee in assignees:

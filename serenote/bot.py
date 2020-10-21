@@ -2,7 +2,6 @@
 
 import logging
 
-import discord
 from discord.ext import commands
 
 from . import utils
@@ -19,11 +18,8 @@ class Bot(commands.Bot):
 
     async def on_command_error(self, context, exception):
         if isinstance(exception, commands.MissingRequiredArgument):
-            await context.send(embed=utils.Panel(
-                type="Error",
-                type_icon=utils.Panel.icons("error"),
-                title="Missing Required Argument",
-                description=exception.args[0],
-            ))
+            await context.send(
+                embed=utils.Alert("error", "Missing Required Argument", exception.args[0])
+            )
         else:
             raise exception
