@@ -24,16 +24,15 @@ class Task:
         for action in cls.actions.values():
             react = ctx.bot.get_emoji(action)
             await message.add_reaction(react)
-
         # Insert task into database
         db_task = db.Task(
             message_id=message.id,
+            channel_id=message.channel.id,
             author_id=ctx.author.id,
             assignee_ids=kwargs['assignees'][0],
             assigned_role_ids=kwargs['assignees'][1]
         )
         db_task.save()
-
         # Build task object
         return Task(message)
     
