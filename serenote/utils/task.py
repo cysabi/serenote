@@ -117,6 +117,9 @@ class Task:
             task = await Task.get(ctx.bot, task_obj.message_id)
             tasks.append(task)
         return tasks
+
+    @staticmethod
+    def get_type(complete):
         """Get task panel type, based on complete status."""
         return {
             False: {"type": "Task", "type_icon": utils.Panel.icons("unchecked")},
