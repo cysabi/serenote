@@ -79,13 +79,13 @@ class Task:
         self.assignees = [self.guild.get_member(assignee_id) for assignee_id in self.db.assignee_ids]
         self.assigned_roles = [self.guild.get_role(role_id) for role_id in self.db.assigned_role_ids]
 
-    async def action(self, payload, reaction_add: bool):
+    async def action(self, user_id, act, reaction_add: bool):
         """Validate payload and run a task action."""
-        if self.validate_user(payload.user_id):
+        if self.validate_user(user_id):
             await {
                 'complete': self.complete,
                 'delete': self.delete
-            }[payload.emoji.name](reaction_add)
+            }[act](reaction_add)
 
     def validate_user(self, user_id):
         """Return whether the user_id has permission to interact with the task."""
