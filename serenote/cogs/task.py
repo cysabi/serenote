@@ -6,7 +6,7 @@ from discord.ext import commands
 from serenote import utils, db
 
 
-class Tasks(commands.Cog):
+class Task(commands.Cog):
     """Commands to managing tasks."""
 
     def __init__(self, bot):
@@ -50,12 +50,12 @@ class Tasks(commands.Cog):
                 assignee_ids.remove(ctx.author.id)
             elif re.match(r'<@!?\d{1,}>', word):  # Assign a user
                 assignee_ids.append(int(re.sub(r'\D', '', word)))
-                words.pop(0)
             elif re.match(r'<@&\d{1,}>', word):  # Assign a role
                 assigned_role_ids.append(int(re.sub(r'\D', '', word)))
-                words.pop(0)
             else:
                 break
+            words.pop(0)
+
         return (assignee_ids, assigned_role_ids), " ".join(words)
 
     @commands.command()
@@ -64,13 +64,28 @@ class Tasks(commands.Cog):
         Please note that this only retrieves the tasks that are directly assigned to you, not by role.
         """
         tasks = await utils.Task.query(ctx, assignee_ids=ctx.author.id)
-        task_list = "\n".join([
-            f"`-` [{task.panel.title}]({task.message.jump_url})" for task in tasks
-        ])
-        await ctx.send(embed=discord.Embed(
+        bullet = {
+            "unchecked": 768579164445605928,
+            "checked": 768579164092628994
+        }
+        embed = discord.Embed(
             color=discord.Color.blurple(),
             title=f"Tasks assigned to **{ctx.author.name}**",
-            description=task_list))
+            description=self.create_task_list(tasks, bullet["unchecked"], False)
+        )
+        if completed := self.create_task_list(tasks, bullet["checked"], True):
+            embed.add_field(name="Completed Tasks", value=completed)
+        await ctx.send(embed=embed)
+
+    def create_task_list(self, tasks, bullet, check):
+        task_list = "\n".join([
+            f"{self.bot.get_emoji(bullet)} [{task.panel.title}]({task.message.jump_url})"
+            for task in tasks
+            if task.checked() == check
+        ])
+        if not task_list and not check:
+            return "> *You don't have any tasks, make some!*"
+        return task_list
 
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
@@ -95,4 +110,4 @@ class Tasks(commands.Cog):
             task_obj.delete()
 
 def setup(bot):
-    bot.add_cog(Tasks(bot))
+    bot.add_cog(Task(bot))

@@ -1,4 +1,4 @@
 names = [
     "misc",
-    "tasks"
+    "task"
 ]
