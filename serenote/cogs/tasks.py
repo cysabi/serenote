@@ -70,8 +70,7 @@ class Tasks(commands.Cog):
         await ctx.send(embed=discord.Embed(
             color=discord.Color.blurple(),
             title=f"Tasks assigned to **{ctx.author.name}**",
-            description=task_list
-        ))
+            description=task_list))
 
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
