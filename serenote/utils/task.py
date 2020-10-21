@@ -56,16 +56,18 @@ class Task:
         # Ensure the message even is a task
         if not (db_task := db.get_task(message_id)):
             return
+        # Attempt to find task object
+        if not (channel := bot.get_channel(db_task.channel_id)):
+            return await db_task.delete()
         try:
-            # Create task object
-            message = await bot.get_channel(db_task.channel_id).fetch_message(db_task.message_id)
-            task = Task(message)
+            message = await channel.fetch_message(db_task.message_id)
         except discord.NotFound:
-            return
+            return await db_task.delete()
+        # Create task object
+        task = Task(message)
+        # If task embed has been removed
         if not task.message.embeds:
-            await task.delete()
-            return
-
+            return await task.delete()
         return Task(message)
 
     def __init__(self, message):
