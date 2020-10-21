@@ -105,7 +105,7 @@ class Task:
     @staticmethod
     def get_assignees(ctx, ids) -> list:
         """Return a list of all role and user objects that are assignees."""
-        assignees = [ctx.author]
+        assignees = []
         for role in ids[1]:
             assignee = ctx.guild.get_role(role)
             if not assignee in assignees:
