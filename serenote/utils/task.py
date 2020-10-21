@@ -58,11 +58,11 @@ class Task:
             return
         # Attempt to find task object
         if not (channel := bot.get_channel(db_task.channel_id)):
-            return await db_task.delete()
+            return db_task.delete()
         try:
             message = await channel.fetch_message(db_task.message_id)
         except discord.NotFound:
-            return await db_task.delete()
+            return db_task.delete()
         # Create task object
         task = Task(message)
         # If task embed has been removed
@@ -116,8 +116,8 @@ class Task:
         tasks = []
 
         for task_obj in task_objects:
-            task = await Task.get(ctx.bot, task_obj.message_id)
-            tasks.append(task)
+            if task := await Task.get(ctx.bot, task_obj.message_id):
+                tasks.append(task)
         return tasks
 
     @staticmethod
