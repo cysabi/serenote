@@ -54,6 +54,8 @@ class Task(commands.Cog):
                 assigned_role_ids.append(int(re.sub(r'\D', '', word)))
             else:
                 break
+            words.pop(0)
+
         return (assignee_ids, assigned_role_ids), " ".join(words)
 
     @commands.command()
