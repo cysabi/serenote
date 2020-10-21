@@ -19,7 +19,6 @@ class Task:
         # Create task panel
         panel = cls.create_panel(ctx, title, description, **kwargs)
         message = await ctx.send(embed=panel)  # Send panel embed
-
         # Add actions
         for action in cls.actions.values():
             react = ctx.bot.get_emoji(action)
@@ -41,20 +40,16 @@ class Task:
         """Create task panel."""
         # Get task panel type
         task_panel_type = cls.get_type(False)
-
         # Add panel meta
         panel_meta = {}
-        # display assignees meta
-        panel_meta["Assignees"] = cls.get_assignees(ctx, kwargs['assignees'])
-
+        panel_meta["Assignees"] = cls.get_assignees(ctx, kwargs['assignees'])  # display assignees meta
         # Return panel object
         return utils.Panel(
             **task_panel_type,
             meta=panel_meta,
             title=title,
-            description=description
-        )
-    
+            description=description)
+
     def __init__(self, message):
         self.message = message
         self.db = db.get_task(message.id)
