@@ -6,7 +6,7 @@ from discord.ext import commands
 from serenote import utils, db
 
 
-class Tasks(commands.Cog):
+class Task(commands.Cog):
     """Commands to managing tasks."""
 
     def __init__(self, bot):
@@ -101,4 +101,4 @@ class Tasks(commands.Cog):
             task_obj.delete()
 
 def setup(bot):
-    bot.add_cog(Tasks(bot))
+    bot.add_cog(Task(bot))
