@@ -58,6 +58,21 @@ class Tasks(commands.Cog):
                 break
         return (assignee_ids, assigned_role_ids), " ".join(words)
 
+    @commands.command()
+    async def tasks(self, ctx):
+        """Get a list of all of your tasks.
+        Please note that this only retrieves the tasks that are directly assigned to you, not by role.
+        """
+        tasks = await utils.Task.query(ctx, assignee_ids=ctx.author.id)
+        task_list = "\n".join([
+            f"`-` [{task.panel.title}]({task.message.jump_url})" for task in tasks
+        ])
+        await ctx.send(embed=discord.Embed(
+            color=discord.Color.blurple(),
+            title=f"Tasks assigned to **{ctx.author.name}**",
+            description=task_list
+        ))
+
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
         """Run task.action if the added reaction is on the task message."""

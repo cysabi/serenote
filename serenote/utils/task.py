@@ -107,8 +107,16 @@ class Task:
             await self.message.delete()
             self.db.delete()
 
-    @classmethod
-    def get_type(cls, complete):
+    @staticmethod
+    async def query(ctx, **kwargs):
+        """Return a list of tasks based on query."""
+        task_objects = db.Task.objects(**kwargs)
+        tasks = []
+
+        for task_obj in task_objects:
+            task = await Task.get(ctx.bot, task_obj.message_id)
+            tasks.append(task)
+        return tasks
         """Get task panel type, based on complete status."""
         return {
             False: {"type": "Task", "type_icon": utils.Panel.icons("unchecked")},
