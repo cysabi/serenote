@@ -83,10 +83,11 @@ class Task:
         self.panel.set_type(**self.get_type(checked))
         await self.message.edit(embed=self.panel)
 
-    async def delete(self, _=None):
+    async def delete(self, checked=True):
         """Action task delete."""
-        await self.message.delete()
-        self.db.delete()
+        if checked:
+            await self.message.delete()
+            self.db.delete()
 
     @classmethod
     def get_type(cls, complete):
