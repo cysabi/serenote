@@ -81,38 +81,6 @@ class Tasks(commands.Cog):
         """Run task delete if the user deletes the deleted."""
         if task_obj := db.get_task(message.id):
             task_obj.delete()
-    
-    async def get_task(self, payload):
-        """Return task object from reaction payload."""
-        if not db.get_task(payload.message_id):
-            return
-        try:
-            task_msg = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
-        except discord.NotFound:
-            return
-        if not task_msg.embeds:
-            await task_msg.delete()
-            await self.task_delete(task_msg)
-            return
-        return utils.Task(task_msg)
-
-    @staticmethod
-    def get_assignees(content):
-        """Get all assignee ids."""
-        assignee_ids = []
-        assigned_role_ids = []
-        words = content.split()
-        for word in content.split():
-            if re.match(r'<@!?\d{1,}>', word):
-                assignee_ids.append(int(re.sub(r'\D', '', word)))
-                words.pop(0)
-            elif re.match(r'<@&\d{1,}>', word):
-                assigned_role_ids.append(int(re.sub(r'\D', '', word)))
-                words.pop(0)
-            else:
-                break
-        return (assignee_ids, assigned_role_ids), " ".join(words)
-
 
 def setup(bot):
     bot.add_cog(Tasks(bot))

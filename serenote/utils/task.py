@@ -50,6 +50,24 @@ class Task:
             title=title,
             description=description)
 
+    @staticmethod
+    async def get(bot, message_id):
+        """Return task object from reaction payload."""
+        # Ensure the message even is a task
+        if not (db_task := db.get_task(message_id)):
+            return
+        try:
+            # Create task object
+            message = await bot.get_channel(db_task.channel_id).fetch_message(db_task.message_id)
+            task = Task(message)
+        except discord.NotFound:
+            return
+        if not task.message.embeds:
+            await task.delete()
+            return
+
+        return Task(message)
+
     def __init__(self, message):
         self.message = message
         self.db = db.get_task(message.id)
