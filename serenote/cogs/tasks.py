@@ -46,14 +46,14 @@ class Tasks(commands.Cog):
         assigned_role_ids = []
         words = content.split()
         for word in content.split():
-            if re.match(r'<@!?\d{1,}>', word):  # Assign a user
+            if str(ctx.author.id) in word and ctx.author.id in assignee_ids:  # Unassign the author
+                assignee_ids.remove(ctx.author.id)
+            elif re.match(r'<@!?\d{1,}>', word):  # Assign a user
                 assignee_ids.append(int(re.sub(r'\D', '', word)))
                 words.pop(0)
             elif re.match(r'<@&\d{1,}>', word):  # Assign a role
                 assigned_role_ids.append(int(re.sub(r'\D', '', word)))
                 words.pop(0)
-            elif str(ctx.author.id) in word and ctx.author.id in assignee_ids:  # Unassign the author
-                assignee_ids.remove(ctx.author.id)
             else:
                 break
         return (assignee_ids, assigned_role_ids), " ".join(words)
