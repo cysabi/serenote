@@ -81,7 +81,7 @@ class Task(commands.Cog):
         task_list = "\n".join([
             f"{self.bot.get_emoji(bullet)} [{task.panel.title}]({task.message.jump_url})"
             for task in tasks
-            if task.checked() == check
+            if task.is_complete() == check
         ])
         if not task_list and not check:
             return "> *You don't have any tasks, make some!*"
@@ -106,8 +106,8 @@ class Task(commands.Cog):
     @commands.Cog.listener(name='on_message_delete')
     async def task_delete(self, message):
         """Run task delete if the user deletes the deleted."""
-        if task_obj := db.get_task(message.id):
-            task_obj.delete()
+        if db_task := db.get_task(message.id):
+            db_task.delete()
 
 def setup(bot):
     bot.add_cog(Task(bot))

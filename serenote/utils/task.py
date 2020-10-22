@@ -70,6 +70,17 @@ class Task:
             return await task.delete()
         return Task(message)
 
+    @staticmethod
+    async def query(ctx, **kwargs):
+        """Return a list of tasks based on query."""
+        task_objects = db.Task.objects(**kwargs)
+        tasks = []
+
+        for task_obj in task_objects:
+            if task := await Task.get(ctx.bot, task_obj.message_id):
+                tasks.append(task)
+        return tasks
+
     def __init__(self, message):
         self.message = message
         self.db = db.get_task(message.id)
@@ -81,7 +92,7 @@ class Task:
         self.assignees = [self.guild.get_member(assignee_id) for assignee_id in self.db.assignee_ids]
         self.assigned_roles = [self.guild.get_role(role_id) for role_id in self.db.assigned_role_ids]
 
-    def checked(self):
+    def is_complete(self):
         """Return whether the task is checked."""
         return {
             utils.Panel.icons("unchecked"): False,
@@ -96,6 +107,17 @@ class Task:
                 'delete': self.delete
             }[act](reaction_add)
 
+    async def complete(self, checked: bool):
+        """Action task complete as checked value."""
+        self.panel.set_type(**self.get_type(checked))
+        await self.message.edit(embed=self.panel)
+
+    async def delete(self, checked: bool = True):
+        """Action task delete."""
+        if checked:
+            await self.message.delete()
+            self.db.delete()
+
     def validate_user(self, user_id):
         """Return whether the user_id has permission to interact with the task."""
         if user_id == self.db.author_id:
@@ -104,28 +126,6 @@ class Task:
             return True
         if any(role in self.guild.get_member(user_id).roles for role in self.assigned_roles):
             return True
-
-    async def complete(self, checked: bool):
-        """Action task complete as checked value."""
-        self.panel.set_type(**self.get_type(checked))
-        await self.message.edit(embed=self.panel)
-
-    async def delete(self, checked=True):
-        """Action task delete."""
-        if checked:
-            await self.message.delete()
-            self.db.delete()
-
-    @staticmethod
-    async def query(ctx, **kwargs):
-        """Return a list of tasks based on query."""
-        task_objects = db.Task.objects(**kwargs)
-        tasks = []
-
-        for task_obj in task_objects:
-            if task := await Task.get(ctx.bot, task_obj.message_id):
-                tasks.append(task)
-        return tasks
 
     @staticmethod
     def get_type(complete):
