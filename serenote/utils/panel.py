@@ -5,34 +5,36 @@ class Panel(discord.Embed):
 
     @classmethod
     def from_embed(cls, embed):
+        """Convert embed into panel embed."""
+        # Create a new panel embed
         panel = Panel(
             type=embed._author['name'],
-            type_icon=embed._author.get('icon_url'),
             title=embed.title,
             description=embed.description
         )
+        # Re-set footer of panel embed
         if footer := getattr(embed, '_footer', None):
             panel.set_footer(text=footer['text'])
         return panel
 
-    def __init__(self, type, type_icon=None, meta=None, *, title=None, description=None):
+    def __init__(self, type, meta=None, *, title=None, description=None):
         super().__init__(color=0x2F3136, title=title, description=description)
-        self.set_type(type, type_icon)
+        self.set_type(type)
         if meta:
             self.set_meta(meta)
-
-    def set_type(self, type, type_icon=None):
-        self.set_author(name=type, **({"icon_url": type_icon} if type_icon else {}))
-
-    def get_type(self):
-        return {"type": self._author['name'], "type_icon": self._author.get('icon_url')}
 
     def set_meta(self, meta):
         self.set_footer(text="\n".join([
             f"{key}: {self.parse_value(value)}"
             for key, value in meta.items()
         ]))
-    
+
+    def set_type(self, type):
+        self.set_author(name=type, icon_url=self.get_icon(type))
+
+    def get_type(self):
+        return self._author['name']
+
     @classmethod
     def parse_value(cls, value):
         if isinstance(value, (discord.User, discord.Member)):
@@ -42,5 +44,5 @@ class Panel(discord.Embed):
         return value
 
     @staticmethod
-    def icons(img):
-        return f"https://raw.githubusercontent.com/LeptoFlare/serenote/main/static/{img}.png"
+    def get_icon(type):
+        return f"https://raw.githubusercontent.com/LeptoFlare/serenote/main/static/types/{type.lower()}.png"

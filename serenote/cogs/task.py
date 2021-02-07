@@ -59,33 +59,48 @@ class Task(commands.Cog):
         return (assignee_ids, assigned_role_ids), " ".join(words)
 
     @commands.command()
-    async def tasks(self, ctx):
-        """Get a list of all of your tasks.
+    async def tasks(self, ctx, *args):
+        """ Get a list of all of your tasks.
+
+        Arguments:
+        - `c`: Shows completed tasks in another field
+
         Please note that this only retrieves the tasks that are directly assigned to you, not by role.
         """
-        tasks = await utils.Task.query(ctx, assignee_ids=ctx.author.id)
-        bullet = {
-            "unchecked": 768579164445605928,
-            "checked": 768579164092628994
-        }
+        # Query tasks
+        task_objects = db.Task.objects(assignee_ids=ctx.author.id)
+        tasks = []
+
+        for task_obj in task_objects:
+            if task := await utils.Task.get(ctx.bot, task_obj.message_id):
+                tasks.append(task)
+        # Create embed
         embed = discord.Embed(
             color=discord.Color.blurple(),
             title=f"Tasks assigned to **{ctx.author.name}**",
-            description=self.create_task_list(tasks, bullet["unchecked"], False)
+            description=self.create_task_list(tasks, False)
         )
-        if completed := self.create_task_list(tasks, bullet["checked"], True):
-            embed.add_field(name="Completed Tasks", value=completed)
+        # Optionally add completed tasks (if specified)
+        if "c" in args:
+            if completed := self.create_task_list(tasks, True):
+                embed.add_field(name="Completed Tasks", value=completed)
         await ctx.send(embed=embed)
 
-    def create_task_list(self, tasks, bullet, check):
+    def create_task_list(self, tasks, status):
         task_list = "\n".join([
-            f"{self.bot.get_emoji(bullet)} [{task.panel.title}]({task.message.jump_url})"
+            f"{task.use_title()} [{task.use_title(index=1)}]({task.message.jump_url})"
             for task in tasks
-            if task.checked() == check
+            if task.use_title() == utils.Task.status[status]
         ])
-        if not task_list and not check:
+        if not task_list:
             return "> *You don't have any tasks, make some!*"
         return task_list
+
+    @commands.Cog.listener(name='on_message_delete')
+    async def task_delete(self, message):
+        """Run task delete if the user deletes the deleted."""
+        if task_obj := db.get_task(message.id):
+            task_obj.delete()
 
     @commands.Cog.listener(name='on_raw_reaction_add')
     async def task_action_add(self, payload):
@@ -102,12 +117,6 @@ class Task(commands.Cog):
                 await task.action(payload.user_id, payload.emoji.name, add)
             except discord.NotFound:
                 pass
-
-    @commands.Cog.listener(name='on_message_delete')
-    async def task_delete(self, message):
-        """Run task delete if the user deletes the deleted."""
-        if task_obj := db.get_task(message.id):
-            task_obj.delete()
 
 def setup(bot):
     bot.add_cog(Task(bot))
