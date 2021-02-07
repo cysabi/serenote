@@ -4,7 +4,7 @@ import discord
 class Alert(discord.Embed):
 
     alert_types = {
-        "error": "<:error:768212380546367518>",
+        "error": "<:error:807799799721230347>",
     }
 
     def __init__(self, alert_type, title: str, description: str = discord.Embed.Empty):
